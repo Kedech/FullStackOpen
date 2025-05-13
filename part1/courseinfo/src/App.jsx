@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { use, useState } from 'react'
 import viteLogo from '/vite.svg'
 import Header from './Header'
 import Content from './Content'
