@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './App.css'
 import Statistics from './Statistics'
 import Content from './Content'
 
