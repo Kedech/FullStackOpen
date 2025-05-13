@@ -8,7 +8,7 @@ const MostVoted = ({ anecdotes, votes }) => {
 
     return (
         <div>
-            <h2>Anecdote with most votes</h2>
+            <h1>Anecdote with most votes</h1>
             <p>{anecdotes[mostVotedIndex]}</p>
             <p>Has {maxVotes} votes</p>
         </div>

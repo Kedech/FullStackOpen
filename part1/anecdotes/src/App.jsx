@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./App.css";
 import Button from "./Button";
 import Anecdotes from "./Anecdotes";
 import MostVoted from "./MostVoted";
