@@ -1,7 +1,37 @@
 import { useState } from "react";
-import Button from "./Button";
-import Anecdotes from "./Anecdotes";
-import MostVoted from "./MostVoted";
+
+const Anecdotes = ({ anecdote, vote }) => {
+    return (
+        <div>
+            <h1>Anecdote of the day</h1>
+            <p>{anecdote}</p>
+            <p>Has {vote} votes</p>
+        </div>
+    )
+}
+
+const Button = ({text, onClick}) => {
+  return (
+    <button onClick={onClick}>{text}</button>
+  )
+}
+
+const MostVoted = ({ anecdotes, votes }) => {
+    const maxVotes = Math.max(...votes)
+    const mostVotedIndex = votes.indexOf(maxVotes)
+
+    if (maxVotes === 0) {
+        return <p>No votes yet</p>
+    }
+
+    return (
+        <div>
+            <h1>Anecdote with most votes</h1>
+            <p>{anecdotes[mostVotedIndex]}</p>
+            <p>Has {maxVotes} votes</p>
+        </div>
+    )
+}
 
 function App() {
   const anecdotes = [
