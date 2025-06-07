@@ -1,32 +1,13 @@
+require('dotenv').config()
 const express = require('express')
 var morgan = require('morgan')
 const cors = require('cors')
 const app = express()
+const Phone = require('./models/phone')
+
 app.use(morgan('tiny'));
 app.use(cors())
 
-const persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
 
 app.use(express.json());
 
@@ -36,53 +17,79 @@ morgan.token('req-body', (req) => {
 
 app.use(express.static('dist'))
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
 
-app.get('/api/persons', (req, res) => res.json(persons))
+
+app.get('/api/persons', (req, res) => {
+  Phone.find({})
+    .then(persons => {
+      res.json(persons);
+    })
+    .catch(error => {
+      console.error('Error fetching persons:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    });
+})
 
 app.get('/info', (req, res) => {
     const date = new Date(); 
-    const info = `<p>Phonebook has info for ${persons.length} people</p>
-                    <p>${date}</p>`;
-    res.send(info);
+    Phone.find({})
+    .then(persons => {  
+      res.send(`<p>Phonebook has info for ${persons.length} people</p>
+                <p>${date}</p>`)
+      })
+    .catch(error => {
+      console.error('Error fetching persons:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const person = persons.find(p => p.id === id);
-    if (person) {
-        res.json(person);
-    } else {
-        res.status(404).end();
-    }
+    Phone.findById(req.params.id)
+    .then(person => {
+        if (person) {
+            res.json(person);
+        } else {
+            res.status(404).end();
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching person:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    });
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const personIndex = persons.findIndex(p => p.id === id);
-    if (personIndex !== -1) {
-        persons.splice(personIndex, 1);
-        res.status(204).end();
-    } else {
-        res.status(404).end();
-    }
+  Phone.findByIdAndDelete(req.params.id)
+    .then(() => {
+        res.status(204).end(); 
+    })
+    .catch(error => {
+        console.error('Error deleting person:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    });
 })
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
 
 app.post('/api/persons', express.json(), (req, res) => {
     const body = req.body;
     if (!body.name || !body.number) {
         return res.status(400).json({ error: 'name or number missing' });
     }
-    if (persons.some(p => p.name === body.name)) {
-        return res.status(400).json({ error: 'name must be unique' });
-    }
-    const newPerson = {
-        id: Math.floor(Math.random() * 1000000),
+    const newPerson = new Phone({
         name: body.name,
         number: body.number
-    };
-    persons.push(newPerson);
-    res.status(201).json(newPerson);
+    });
+    console.log('Adding new person:', newPerson);
+    
+    newPerson.save()
+        .then(savedPerson => {
+            res.status(201).json(savedPerson);
+        })
+        .catch(error => {
+            console.error('Error saving person:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        });
 })
 
 const unknownEndpoint = (request, response) => {
@@ -91,7 +98,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
