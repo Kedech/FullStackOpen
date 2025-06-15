@@ -58,7 +58,6 @@ function App() {
         })
         .catch(error => {
           setMessageNotification({message: `${error.response.data.error}`, type: 'error'})
-          console.error('Error adding person:', error.response.data.error)
         })
     }
     setNewName('')
