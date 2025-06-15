@@ -42,7 +42,7 @@ function App() {
           })
           .catch(error => {
             setMessageNotification({message: `Information of ${personIndex.name} has already been removed from server`, type: 'error'})
-            console.error('Error updating person:', error)
+            console.error('Error updating person:', error.response.data.error)
           })
       }
     }
@@ -57,8 +57,8 @@ function App() {
           setMessageNotification({message: `Added ${returnedPerson.name}`, type: 'success'})
         })
         .catch(error => {
-          setMessageNotification({message: `Error adding ${newName}`, type: 'error'})
-          console.error('Error adding person:', error)
+          setMessageNotification({message: `${error.response.data.error}`, type: 'error'})
+          console.error('Error adding person:', error.response.data.error)
         })
     }
     setNewName('')
